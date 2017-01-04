@@ -1,6 +1,8 @@
+
+
 # Online Shopping Portal
 
-This website is based on Eccommerce project.
+This website is based on E-commerce portal.
 The project is created using Maven webapp.
 
 
