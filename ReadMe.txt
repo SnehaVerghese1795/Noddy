@@ -6,11 +6,11 @@ This website is based on E-commerce portal.
 The project is created using Maven webapp.
 
 
-## Getting Started
+ Getting Started
 
-### Prerequisite
+ Prerequisite
 
-#### Technology used
+ Technology used
 
 1. HTML5
 2. Javascript
