@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import org.hibernate.validator.constraints.NotBlank;
 
 public class ShippingAddress {
+	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 1L;
 	@Id
 	private String shippingAddressId;

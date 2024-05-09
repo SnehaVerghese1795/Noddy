@@ -3,11 +3,8 @@ package com.niit.maquillagecart.model;
 import java.io.Serializable;
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.stereotype.Component;
 

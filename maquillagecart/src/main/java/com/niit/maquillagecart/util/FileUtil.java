@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileUtil {
+		@SuppressWarnings("null")
 		public  static String upload(String path,MultipartFile image,String filename)
 		{
 			if(!image.isEmpty()){

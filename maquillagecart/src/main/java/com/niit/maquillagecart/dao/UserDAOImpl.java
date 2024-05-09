@@ -2,9 +2,11 @@ package com.niit.maquillagecart.dao;
 
 import java.util.List;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
-import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.niit.maquillagecart.dao.UserDAO;
 import com.niit.maquillagecart.model.Cart;
 import com.niit.maquillagecart.model.UserDetails;
 
@@ -40,11 +41,12 @@ public class UserDAOImpl implements UserDAO {
 	@Transactional
 	public List<UserDetails> list() {
 		
-		@SuppressWarnings("unchecked")
-		List<UserDetails> listUserDetails = (List<UserDetails>) 
-		          sessionFactory.getCurrentSession()
-				.createCriteria(UserDetails.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+		CriteriaQuery<UserDetails> criteriaQuery = builder.createQuery(UserDetails.class);
+		Root<UserDetails> root = criteriaQuery.from(UserDetails.class);
+		criteriaQuery.select(root);
+		List<UserDetails> listUserDetails = sessionFactory.getCurrentSession().createQuery(criteriaQuery).getResultList();
+
 
 		return listUserDetails;
 	}
@@ -112,8 +114,9 @@ catch(Exception e)
 public UserDetails get(String username)
 {
 	String hql = "from UserDetails where username= "+" '" +username+ "'";
-	Query query =sessionFactory.getCurrentSession().createQuery(hql);
-	List<UserDetails> list = query.list();
+	TypedQuery<UserDetails> query = sessionFactory.getCurrentSession().createQuery(hql, UserDetails.class);
+    query.setParameter("username", username);
+    List<UserDetails> list = query.getResultList();
 	if(list == null || list.isEmpty())
 	{
 		return null;
@@ -128,12 +131,12 @@ public UserDetails get(String username)
 public boolean isValidUser(String username, String password) {
 	System.out.println("dao impl");
 	String hql ="from UserDetails where username= '" + username + "' and " + " password ='" + password + "'";
-	Query query = sessionFactory.getCurrentSession().createQuery(hql);
-	@SuppressWarnings("unchecked")
-	List<UserDetails> list = (List<UserDetails>) query.list();
+	TypedQuery<UserDetails> query = sessionFactory.getCurrentSession().createQuery(hql, UserDetails.class);
+    query.setParameter("username", username);
+    query.setParameter("password", password);
+    List<UserDetails> list = query.getResultList();
 	if(list != null && !list.isEmpty())
-	{
-	
+	{	
 		return true;
 	}
 	return false;
@@ -142,22 +145,15 @@ public boolean isValidUser(String username, String password) {
 
 @Transactional
 public UserDetails getCustomerByUsername(String username) {
-
-	String hql = "from UserDetails where username=" + "'" + username + "'";
-	
-Query query = sessionFactory.getCurrentSession().createQuery(hql);
-	
-List<UserDetails> listOfCustomers = query.list();
-	
-if (listOfCustomers != null && !listOfCustomers.isEmpty()){
-
-	return  listOfCustomers.get(0);
-
+	String hql = "from UserDetails where username=" + "'" + username + "'";	
+	TypedQuery<UserDetails> query = sessionFactory.getCurrentSession().createQuery(hql, UserDetails.class);
+    query.setParameter("username", username);
+    List<UserDetails> listOfCustomers = query.getResultList();	
+	if (listOfCustomers != null && !listOfCustomers.isEmpty())
+	{
+		return  listOfCustomers.get(0);
+	}
+	return null;
 }
-return null;
-}
-
-
-
 
 }

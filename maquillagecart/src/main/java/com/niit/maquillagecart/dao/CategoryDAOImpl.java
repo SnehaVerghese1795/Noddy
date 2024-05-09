@@ -1,7 +1,11 @@
 package com.niit.maquillagecart.dao;
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
+
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -44,9 +48,9 @@ public class CategoryDAOImpl implements CategoryDAO {
 @Transactional
 	public Category get(String id) {
 		String hql = "from Category where id =" + "'" + id + "'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		@SuppressWarnings("unchecked")
-		List<Category> list = (List<Category>) query.list();
+		TypedQuery<Category> query = sessionFactory.getCurrentSession().createQuery(hql, Category.class);
+    	query.setParameter("id", id);
+    	List<Category> list = query.getResultList();
 		if (list != null && !list.isEmpty()) {
 			return list.get(0);
 		}
@@ -55,19 +59,20 @@ public class CategoryDAOImpl implements CategoryDAO {
 
 @Transactional
 	public List<Category> list() {
-		@SuppressWarnings("unchecked")
-		List<Category> list = (List<Category>) sessionFactory.getCurrentSession().createCriteria(Category.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    	CriteriaQuery<Category> criteriaQuery = builder.createQuery(Category.class);
+    	Root<Category> root = criteriaQuery.from(Category.class);
+    	criteriaQuery.select(root);
+    	List<Category> list = sessionFactory.getCurrentSession().createQuery(criteriaQuery).getResultList();
 		return list;
 	}
 
 @Transactional
 	public Category getByName(String name) {
 		String hql = "from Category where name =" + "'" + name + "'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		@SuppressWarnings("unchecked")
-		List<Category> list = (List<Category>) query.list();
+		TypedQuery<Category> query = sessionFactory.getCurrentSession().createQuery(hql, Category.class);
+    	query.setParameter("name", name);
+    	List<Category> list = query.getResultList();
 		if (list != null && !list.isEmpty()) {
 			return list.get(0);
 		}

@@ -2,8 +2,11 @@ package com.niit.maquillagecart.dao;
 
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.Query;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,17 +47,18 @@ import com.niit.maquillagecart.model.CartItem;
 	    public CartItem getCartItemByItemId (int itemId) {
 	        Session session = sessionFactory.getCurrentSession();
 	        Query query = session.createQuery("from CartItem where itemId = ?");
-	        query.setInteger(0,itemId);
+	        query.setParameter("itemId", itemId);
 	        session.flush();
 
-	        return (CartItem) query.uniqueResult();
+	        return (CartItem) query.getResultList();
 	    }
 
 		public List<CartItem> list() {
-			List<CartItem> listCartItem = (List<CartItem>) sessionFactory.getCurrentSession()
-					.createCriteria(CartItem.class)
-					.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
-
+			CriteriaBuilder builder = sessionFactory.getCriteriaBuilder();
+    		CriteriaQuery<CartItem> criteriaQuery = builder.createQuery(CartItem.class);
+    		Root<CartItem> root = criteriaQuery.from(CartItem.class);
+    		criteriaQuery.select(root).distinct(true);
+       		List<CartItem> listCartItem = sessionFactory.getCurrentSession().createQuery(criteriaQuery).getResultList();
 			return listCartItem;
 		
 		}

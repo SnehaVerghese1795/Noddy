@@ -1,8 +1,11 @@
 package com.niit.maquillagecart.dao;
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.Session;
+
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,17 +19,18 @@ public class ProductDAOImpl implements ProductDAO{
 	
 	@Autowired
 	private SessionFactory sessionFactory;
-   public ProductDAOImpl(SessionFactory sessionFactory) {
+    public ProductDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
 
 	
 	@Transactional
 	public List<Product> list() {
-		@SuppressWarnings("unchecked")
-		List<Product> listProduct = (List<Product>) sessionFactory.getCurrentSession()
-				.createCriteria(Product.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    	CriteriaQuery<Product> criteriaQuery = builder.createQuery(Product.class);
+    	Root<Product> root = criteriaQuery.from(Product.class);
+    	criteriaQuery.select(root);
+    	List<Product> listProduct = sessionFactory.getCurrentSession().createQuery(criteriaQuery).getResultList();
 
 		return listProduct;
 	}
@@ -34,11 +38,9 @@ public class ProductDAOImpl implements ProductDAO{
 	@Transactional
 	public Product get(String id) {
 		String hql = "from Product where id='" + id+"'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		
-		@SuppressWarnings("unchecked")
-		List<Product> listProduct = (List<Product>) query.list();
-		
+		TypedQuery<Product> query = sessionFactory.getCurrentSession().createQuery(hql, Product.class);
+    	query.setParameter("id", id);
+    	List<Product> listProduct = query.getResultList();
 		if (listProduct != null && !listProduct.isEmpty()) {
 			return listProduct.get(0);
 		}
@@ -70,16 +72,12 @@ public class ProductDAOImpl implements ProductDAO{
 	@Transactional
 	public Product getProductById(String id) {
 		String hql = "from Product where id='" + id+"'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		
-		List<Product> listOfProduct = query.list();
-			
+		TypedQuery<Product> query = sessionFactory.getCurrentSession().createQuery(hql, Product.class);
+    	query.setParameter("id", id);
+    	List<Product> listOfProduct = query.getResultList();			
 		if (listOfProduct != null && !listOfProduct.isEmpty()){
-
 			return  listOfProduct.get(0);
-
-		}
-				
+		}			
 			
 			return null;
 	}
@@ -88,15 +86,11 @@ public class ProductDAOImpl implements ProductDAO{
 	public List<Product> getProductbyCategoryId(String category_id) {
 		System.out.println("inside product");
 		String hql = "from Product where category_id='" +category_id+"'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		
-		List<Product> listOfProducts = query.list();
+		TypedQuery<Product> query = sessionFactory.getCurrentSession().createQuery(hql, Product.class);
+    	query.setParameter("category_id", category_id);
+    	List<Product> listOfProducts = query.getResultList();
 			
 			return  listOfProducts;	
 	}
-
-
-	
-
 
 }

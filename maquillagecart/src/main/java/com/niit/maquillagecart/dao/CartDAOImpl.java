@@ -3,7 +3,8 @@ package com.niit.maquillagecart.dao;
 import java.io.IOException;
 import java.util.List;
 
-import org.hibernate.Query;
+import javax.persistence.TypedQuery;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.niit.maquillagecart.model.Cart;
-import com.niit.maquillagecart.model.UserDetails;
 @Repository
 @Transactional
 public class CartDAOImpl implements CartDAO{
@@ -45,9 +45,12 @@ public class CartDAOImpl implements CartDAO{
 
 		public List<Cart> getCartByUsername(String username) {
 			String hql = "from Cart where username=" + "'" + username + "'";
-			Query query = sessionFactory.getCurrentSession().createQuery(hql);
-			List<Cart> listOfCart = query.list();
+			TypedQuery<Cart> query = sessionFactory.getCurrentSession().createQuery(hql, Cart.class);
+    		query.setParameter("username", username);
+    		List<Cart> listOfCart = query.getResultList();
 			return  listOfCart;
 			}
+
+			
 	   
 	 }

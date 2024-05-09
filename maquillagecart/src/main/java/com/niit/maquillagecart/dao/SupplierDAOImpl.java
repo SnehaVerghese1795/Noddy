@@ -1,14 +1,17 @@
 package com.niit.maquillagecart.dao;
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
+
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.niit.maquillagecart.model.Category;
 import com.niit.maquillagecart.model.Supplier;
 @EnableTransactionManagement
 @Repository
@@ -45,9 +48,9 @@ public class SupplierDAOImpl implements SupplierDAO {
 @Transactional
 	public Supplier get(String id) {
 		String hql = "from Supplier where id =" + "'" + id + "'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		@SuppressWarnings("unchecked")
-		List<Supplier> list = (List<Supplier>) query.list();
+		TypedQuery<Supplier> query = sessionFactory.getCurrentSession().createQuery(hql, Supplier.class);
+    	query.setParameter("id", id);
+    	List<Supplier> list = query.getResultList();
 		if (list != null && !list.isEmpty()) {
 			return list.get(0);
 		}
@@ -56,9 +59,12 @@ public class SupplierDAOImpl implements SupplierDAO {
 
 @Transactional
 	public List<Supplier> list() {
-		@SuppressWarnings("unchecked")
-		List<Supplier> list = (List<Supplier>) sessionFactory.getCurrentSession().createCriteria(Supplier.class)
-				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY).list();
+		
+		CriteriaBuilder builder = sessionFactory.getCurrentSession().getCriteriaBuilder();
+    	CriteriaQuery<Supplier> criteriaQuery = builder.createQuery(Supplier.class);
+    	Root<Supplier> root = criteriaQuery.from(Supplier.class);
+    	criteriaQuery.select(root);
+    	List<Supplier> list = sessionFactory.getCurrentSession().createQuery(criteriaQuery).getResultList();
 
 		return list;
 	}
@@ -66,9 +72,9 @@ public class SupplierDAOImpl implements SupplierDAO {
 @Transactional
 	public Supplier getByName(String name) {
 		String hql = "from Supplier where name =" + "'" + name + "'";
-		Query query = sessionFactory.getCurrentSession().createQuery(hql);
-		@SuppressWarnings("unchecked")
-		List<Supplier> list = (List<Supplier>) query.list();
+		TypedQuery<Supplier> query = sessionFactory.getCurrentSession().createQuery(hql, Supplier.class);
+    	query.setParameter("name", name);
+    	List<Supplier> list = query.getResultList();
 		if (list != null && !list.isEmpty()) {
 			return list.get(0);
 		}
